@@ -124,7 +124,6 @@ function successResponse(successLink: string) {
 
 function invalidOTPResponse(number: { number?: string }) {
   const { firstNumber, specialMessage } = getEnvironmentVariables();
-  console.log(number);
 
   if (number === firstNumber) {
     return NextResponse.json(

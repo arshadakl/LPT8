@@ -2,7 +2,7 @@
 
 import { BackgroundDecoration } from '@/components/BackgroundDecoration';
 import { SuccessCard } from '@/components/SuccessCard';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from '@/components/ui/toaster';
 import { VerificationCard } from '@/components/VerificationCard';
 import { useOTPVerification } from '@/hooks/use-otp-verification';
 import gsap from 'gsap';
@@ -43,7 +43,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen max-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center p-4 relative overflow-hidden">
       <BackgroundDecoration />
       
       <div className="w-full max-w-md relative z-10">
@@ -65,8 +65,10 @@ export default function Home() {
           />
         )}
       </div>
+      <div className="fixed top-0 right-0 left-0">
+        <Toaster />
+      </div>
       
-      <Toaster />
     </div>
   );
 }

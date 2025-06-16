@@ -23,12 +23,12 @@ export function SuccessCard({
         </div>
         
         <div className="space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">
             Verification Successful!
           </h2>
-          <p className="text-gray-400">
+          {/* <p className="text-gray-400">
             Click to read my words
-          </p>
+          </p> */}
         </div>
         
         <a
@@ -37,15 +37,16 @@ export function SuccessCard({
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 focus:ring-2 focus:ring-green-500/20 focus:outline-none"
         >
-          <span>Access Content</span>
-          <ExternalLink className="w-4 h-4" />
+          
+          <span>Open my Second Box</span>
+          <ExternalLink className="w-4 h-4 animate-pulse" />
         </a>
         
         <button
           onClick={resetForm}
           className="block mx-auto text-sm text-gray-400 hover:text-white transition-colors duration-200 mt-4"
         >
-          Verify another code
+          Go back
         </button>
       </CardContent>
     </Card>

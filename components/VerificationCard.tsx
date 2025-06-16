@@ -19,7 +19,7 @@ export function VerificationCard({
   isSubmitted,
   handleOTPComplete,
   handleSubmit,
-}: VerificationCardProps) {
+}: Readonly<VerificationCardProps>) {
   return (
     <Card
       ref={cardRef}
@@ -55,7 +55,7 @@ export function VerificationCard({
         />
         
         <p className="text-xs text-gray-500 text-center">
-          Enter the 4-digit code to continue
+        To ensure the correct person is accessing this, please enter the last 4 digits of your mobile number.
         </p>
       </CardContent>
     </Card>

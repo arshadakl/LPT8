@@ -1,3 +1,10 @@
+import {
+  checkRateLimit,
+  getBlockedResponse,
+  getClientIdentifier,
+  getRateLimitedResponse,
+  isIPBlocked
+} from '@/lib/ip-blocking.upstash';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Force dynamic to prevent caching of sensitive operations
@@ -18,10 +25,12 @@ setInterval(clearExpiredRateLimitEntries, 5 * 60 * 1000);
 
 export async function POST(request: NextRequest) {
   try {
-    // Apply rate limiting
-    const clientId = request.ip || 'unknown';
-    if (isRateLimited(clientId)) {
-      return rateLimitExceededResponse();
+    const clientId = await getClientIdentifier(request);
+    if (await isIPBlocked(clientId)) {
+      return getBlockedResponse();
+    }
+    if (await checkRateLimit(clientId)) {
+      return getRateLimitedResponse();
     }
 
     // Extract and validate input

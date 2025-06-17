@@ -10,7 +10,7 @@ const BLOCKED_IP_KEY_PREFIX = 'blocked:';
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS = Number(process.env.MAX_REQUESTS_PER_MINUTE) || 10;
 const BLOCK_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
-const MAX_VIOLATIONS = 2;
+const MAX_VIOLATIONS = Number(process.env.MAX_VIOLATIONS) || 2;
 
 interface RateLimitEntry {
   count: number;

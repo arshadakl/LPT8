@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 40;
+const MAX_REQUESTS = Number(process.env.MAX_REQUESTS_PER_MINUTE) || 10;
 const rateLimitMap = new Map<string, RateLimitEntry>();
 
 interface RateLimitEntry {
@@ -92,12 +92,13 @@ function getEnvironmentVariables() {
   const successLink = process.env.SUCCESS_LINK;
   const firstNumber = process.env.FIRST_NUMBER;
   const specialMessage = process.env.SPECIAL_MESSAGE;
+  const MAX_REQUESTS_PER_MINUTE = process.env.MAX_REQUESTS_PER_MINUTE;
 
-  if (!validOTP || !successLink || !firstNumber) {
+  if (!validOTP || !successLink || !firstNumber || !specialMessage || !MAX_REQUESTS_PER_MINUTE) {
     throw new Error('Missing environment variables');
   }
 
-  return { validOTP, successLink, firstNumber, specialMessage };
+  return { validOTP, successLink, firstNumber, specialMessage, MAX_REQUESTS_PER_MINUTE };
 }
 
 function addRandomDelay() {

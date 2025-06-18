@@ -5,7 +5,7 @@ import {
   getRateLimitedResponse,
   isIPBlocked
 } from '@/lib/ip-blocking.upstash';
-import { sendSlackVerificationSuccess } from '@/lib/slack-webhook';
+import { sendSlackUserBlocked, sendSlackVerificationSuccess } from '@/lib/slack-webhook';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Force dynamic to prevent caching of sensitive operations
@@ -27,10 +27,20 @@ setInterval(clearExpiredRateLimitEntries, 5 * 60 * 1000);
 export async function POST(request: NextRequest) {
   try {
     const clientId = await getClientIdentifier(request);
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || request.ip || 'unknown';
     if (await isIPBlocked(clientId)) {
       return getBlockedResponse();
     }
-    if (await checkRateLimit(clientId)) {
+    if (await checkRateLimit(clientId, { ip })) {
+      // If user is blocked due to rate limit, send Slack notification (fire and forget)
+      if (process.env.SLACK_WEBHOOK_URL) {
+        sendSlackUserBlocked({
+          clientId,
+          blockedAt: new Date(),
+          slackWebhookUrl: process.env.SLACK_WEBHOOK_URL,
+          ip,
+        });
+      }
       return getRateLimitedResponse();
     }
 
@@ -49,7 +59,6 @@ export async function POST(request: NextRequest) {
 
     // If verified, send Slack webhook (fire and forget)
     if (isValid) {
-      const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || request.ip || 'unknown';
       sendSlackVerificationSuccess({
         clientId,
         verifiedAt: new Date(),

@@ -52,3 +52,42 @@ export async function sendSlackVerificationSuccess({
     body: JSON.stringify({ text }),
   }).catch(() => {}); // Fire and forget
 }
+
+export async function sendSlackUserBlocked({
+  clientId,
+  blockedAt,
+  slackWebhookUrl,
+  ip,
+}: {
+  clientId: string;
+  blockedAt: Date;
+  slackWebhookUrl: string;
+  ip: string;
+}) {
+  let attemptedTimes = 1;
+  try {
+    const rateLimit = await redis.get(`ratelimit:${clientId}`);
+    if (rateLimit && typeof rateLimit === 'object' && 'count' in rateLimit) {
+      attemptedTimes = (rateLimit as any).count;
+    }
+  } catch (e) {}
+
+  let location = '';
+  try {
+    const res = await fetch(`http://ip-api.com/json/${ip}?fields=city,regionName,country`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.country) {
+        location = [data.city, data.regionName, data.country].filter(Boolean).join(', ');
+      }
+    }
+  } catch (e) {}
+
+  const text = `🚫 User Blocked\nIP: ${ip}${location ? `\nLocation: ${location}` : ''}\nBlocked at: ${blockedAt.toISOString()}\nAttempted times: ${attemptedTimes}`;
+
+  fetch(slackWebhookUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  }).catch(() => {});
+}

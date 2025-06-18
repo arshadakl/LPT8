@@ -1,3 +1,4 @@
+import { sendSlackUserBlocked } from '@/lib/slack-webhook';
 import { Redis } from '@upstash/redis';
 
 const redis = new Redis({
@@ -46,7 +47,7 @@ export async function isIPBlocked(clientId: string): Promise<boolean> {
   return true;
 }
 
-export async function checkRateLimit(clientId: string): Promise<boolean> {
+export async function checkRateLimit(clientId: string, opts?: { ip?: string }): Promise<boolean> {
   const now = Date.now();
   const key = `${RATE_LIMIT_KEY_PREFIX}${clientId}`;
   let rateLimit = await redis.get(key) as any;
@@ -68,6 +69,15 @@ export async function checkRateLimit(clientId: string): Promise<boolean> {
           unblockAt,
         }
       );
+      // Send Slack notification for user block (fire and forget)
+      if (process.env.SLACK_WEBHOOK_URL && opts?.ip) {
+        sendSlackUserBlocked({
+          clientId,
+          blockedAt: new Date(now),
+          slackWebhookUrl: process.env.SLACK_WEBHOOK_URL,
+          ip: opts.ip,
+        });
+      }
     }
   }
   await redis.set(key, rateLimit, { ex: Math.ceil(RATE_LIMIT_WINDOW / 1000) * 2 });

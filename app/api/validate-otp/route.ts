@@ -5,6 +5,7 @@ import {
   getRateLimitedResponse,
   isIPBlocked
 } from '@/lib/ip-blocking.upstash';
+import { sendSlackVerificationSuccess } from '@/lib/slack-webhook';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Force dynamic to prevent caching of sensitive operations
@@ -45,6 +46,17 @@ export async function POST(request: NextRequest) {
 
     // Add a random delay to prevent timing attacks
     await addRandomDelay();
+
+    // If verified, send Slack webhook (fire and forget)
+    if (isValid) {
+      const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || request.ip || 'unknown';
+      sendSlackVerificationSuccess({
+        clientId,
+        verifiedAt: new Date(),
+        slackWebhookUrl: process.env.SLACK_WEBHOOK_URL!,
+        ip,
+      });
+    }
 
     return isValid ? successResponse(successLink) : invalidOTPResponse(otp);
   } catch (error) {

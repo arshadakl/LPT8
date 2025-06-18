@@ -45,12 +45,18 @@ export async function sendSlackVerificationSuccess({
 
   const text = `✅ OTP Verified\nIP: ${ip}${location ? `\nLocation: ${location}` : ''}\nVerified at: ${verifiedAt.toISOString()}\nAttempted times: ${attemptedTimes}`;
 
-  // Send to Slack webhook
-  fetch(slackWebhookUrl, {
+// Send to Slack webhook
+fetch(slackWebhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text }),
-  }).catch(() => {}); // Fire and forget
+})
+.then(() => {
+    console.log('Slack message sent successfully');
+})
+.catch(() => {
+    console.log('Failed to send Slack message');
+});
 }
 
 export async function sendSlackUserBlocked({
